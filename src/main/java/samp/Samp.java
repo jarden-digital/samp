@@ -12,7 +12,7 @@ public class Samp {
     public static String From = "From";
     public static String Trace = "Trace";
 
-    private static Pattern introPattern = Pattern.compile("SAMP\\/([0-9\\.]+)\\s+([a-zA-Z]+)\\s+(.*)");
+    private static Pattern introPattern = Pattern.compile("SAMP\\/([0-9\\.]+)\\s+([a-zA-Z]+)((?:\\/[-\\w]+)?)\\s+(.*)");
     private static Pattern headerPattern = Pattern.compile("([^:]+):\\s+(.*)");
 
     public static MessageI parse(String message) throws IOException {
@@ -26,8 +26,9 @@ public class Samp {
         final Matcher m = introPattern.matcher(intro);
         if (!m.matches()) throw new IOException("Invalid SAMP Frame");
         final String version = m.group(1);
-        final String type = m.group(2);
-        final String action = m.group(3);
+        final String kind = m.group(2);
+        final Optional<String> status = Optional.of(m.group(3)).filter(s -> s.length() > 1).map(s -> s.substring(1));
+        final String action = m.group(4);
 
         Map<String, String> headers = new HashMap<>();
         String header = reader.readLine();
@@ -40,13 +41,18 @@ public class Samp {
         }
 
         String line = reader.readLine();
-        String body = "";
+        Optional<String> body = Optional.empty();
         while (line != null) {
-            body += line + System.getProperty("line.separator");
+            final String s = line + System.getProperty("line.separator");
+            if (body.isPresent()) {
+                body = body.map(b -> b + s);
+            } else {
+                body = Optional.of(s);
+            }
             line = reader.readLine();
         }
 
-        return new Message(action, headers, body.getBytes());
+        return new Message(version, kind, status, action, headers, body.map(s -> s.getBytes()));
     }
 
 }
