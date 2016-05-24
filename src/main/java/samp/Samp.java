@@ -55,4 +55,37 @@ public class Samp {
         return new Message(version, kind, status, action, headers, body.map(s -> s.getBytes()));
     }
 
+    public static byte[] format(String kind, Optional<String> status, String action, Map<String, String> headers, Optional<byte[]> body) {
+        final StringBuilder sb = new StringBuilder("SAMP/1.0 ");
+        sb.append(kind);
+        if (status.isPresent()) {
+            sb.append("/");
+            sb.append(status.get());
+        }
+        sb.append(" ");
+        sb.append(action);
+        sb.append("\n");
+        new TreeMap(headers).forEach((k, v) -> {
+                sb.append(k);
+                sb.append(": ");
+                sb.append(v);
+                sb.append("\n");
+        });
+        sb.append("\n");
+        if (body.isPresent()) {
+            sb.append(new String(body.get()));
+        }
+
+        return sb.toString().getBytes();
+    }
+
+    public static List<String> tracePaths(MessageI message) {
+        String trace = message.headers().get(Samp.Trace);
+        if (trace != null) {
+            return Arrays.asList(trace.split("\\.\\.\\."));
+        } else {
+            return Collections.emptyList();
+        }
+    }
+
 }
