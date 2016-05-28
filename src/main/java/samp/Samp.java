@@ -6,6 +6,13 @@ import java.util.regex.*;
 
 public class Samp {
 
+    public static String Event = "EVENT";
+    public static String Failure = "FAILURE";
+
+    public static String Ok = "Ok";
+    public static String BadRequest = "Bad-Request";
+    // TODO others
+
     public static String ContentType = "Content-Type";
     public static String CorrelationId = "Correlation-Id";
     public static String Date = "Date";
@@ -54,6 +61,8 @@ public class Samp {
 
         return new Message(version, kind, status, action, headers, body.map(s -> s.getBytes()));
     }
+
+    // TODO format from MessageI
 
     public static byte[] format(String kind, Optional<String> status, String action, Map<String, String> headers, Optional<byte[]> body) {
         final StringBuilder sb = new StringBuilder("SAMP/1.0 ");
