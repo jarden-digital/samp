@@ -65,6 +65,7 @@ public class Samp {
     // TODO format from MessageI
 
     public static byte[] format(String kind, Optional<String> status, String action, Map<String, String> headers, Optional<byte[]> body) {
+        // TODO should use byte buffer here instead of string builder...
         final StringBuilder sb = new StringBuilder("SAMP/1.0 ");
         sb.append(kind);
         if (status.isPresent()) {
