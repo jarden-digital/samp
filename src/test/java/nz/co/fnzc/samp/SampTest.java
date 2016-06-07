@@ -1,4 +1,4 @@
-package samp;
+package nz.co.fnzc.samp;
 
 import java.io.IOException;
 import java.util.*;

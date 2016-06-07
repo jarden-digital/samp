@@ -1,4 +1,10 @@
 apply plugin: 'java'
+apply plugin: 'maven'
+
+group = 'nz.co.fnzc'
+archivesBaseName = 'samp'
+sourceCompatibility = 1.8
+version = '1.0'
 
 repositories {
   mavenCentral()
