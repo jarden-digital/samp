@@ -6,18 +6,18 @@ import java.util.regex.*;
 
 public class Samp {
 
-    public static String Event = "EVENT";
-    public static String Failure = "FAILURE";
+    public static final String Event = "EVENT";
+    public static final String Failure = "FAILURE";
 
-    public static String Ok = "Ok";
-    public static String BadRequest = "Bad-Request";
+    public static final String Ok = "Ok";
+    public static final String BadRequest = "Bad-Request";
     // TODO others
 
-    public static String ContentType = "Content-Type";
-    public static String CorrelationId = "Correlation-Id";
-    public static String Date = "Date";
-    public static String From = "From";
-    public static String Trace = "Trace";
+    public static final String ContentType = "Content-Type";
+    public static final String CorrelationId = "Correlation-Id";
+    public static final String Date = "Date";
+    public static final String From = "From";
+    public static final String Trace = "Trace";
 
     private static Pattern introPattern = Pattern.compile("SAMP\\/([0-9\\.]+)\\s+([a-zA-Z]+)((?:\\/[-\\w]+)?)\\s+(.*)");
     private static Pattern headerPattern = Pattern.compile("([^:]+):\\s+(.*)");
