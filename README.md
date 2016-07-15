@@ -18,6 +18,6 @@ Run tests
 - Format using ByteBuffer
 
 ## License
-Copyright © 2016 FNZC
+Copyright © 2016 FNZC Digital
 
 Distributed under the [Apache License 2.0](http://www.apache.org/licenses/LICENSE-2.0).
