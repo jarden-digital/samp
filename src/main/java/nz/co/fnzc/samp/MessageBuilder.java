@@ -3,7 +3,7 @@ package nz.co.fnzc.samp;
 import java.util.*;
 import java.util.stream.Collectors;
 
-class MessageBuilder {
+public class MessageBuilder {
 
     private String kind = "EVENT";
     private Optional<String> status = Optional.empty();
@@ -86,7 +86,7 @@ class MessageBuilder {
         if (body.isPresent()) {
             sb.append(new String(body.get()));
         }
-
+        
         return sb.toString().getBytes();
     }
 

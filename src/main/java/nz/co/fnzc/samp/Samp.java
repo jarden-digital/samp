@@ -22,13 +22,14 @@ public class Samp {
     public static final String NotFound = "Not-Found";
     public static final String Forbidded = "Forbidded";
     public static final String Unauthorized = "Unauthorized";
-
+    public static final String Timeout = "Timeout";
     // Header options:
     public static final String ContentType = "Content-Type";
     public static final String CorrelationId = "Correlation-Id";
     public static final String Date = "Date";
     public static final String From = "From";
     public static final String Trace = "Trace";
+    public static final String Payload = "Payload";
 
     private static final Pattern introPattern = Pattern.compile("SAMP\\/([0-9\\.]+)\\s+([a-zA-Z]+)((?:\\/[-\\w]+)?)\\s+(.*)");
     private static final Pattern headerPattern = Pattern.compile("([^:]+):\\s+(.*)");
@@ -99,6 +100,10 @@ public class Samp {
         final String correlationId = message.headers().get(Samp.CorrelationId);
         final String from = message.headers().get(Samp.From);
         final String trace = message.headers().get(Samp.Trace);
+        final String payload = message.headers().get(Samp.Payload);
+        final String contentType = message.headers().get(Samp.ContentType);
+        final String date = message.headers().get(Samp.Date);
+
         if (correlationId != null) {
             builder.withHeader(Samp.CorrelationId, correlationId);
         }
@@ -110,7 +115,15 @@ public class Samp {
         } else if (tracePath.isPresent()) {
             builder.withHeader(Samp.Trace, tracePath.get());
         }
-
+        if(payload != null) {
+          builder.withHeader(Samp.Payload, payload);
+        }
+        if(contentType != null) {
+          builder.withHeader(Samp.ContentType, contentType);
+        }
+        if(date != null) {
+          builder.withHeader(Samp.Date, date);
+        }
         return builder;
     }
 
