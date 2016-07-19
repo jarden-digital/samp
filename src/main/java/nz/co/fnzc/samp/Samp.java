@@ -95,14 +95,10 @@ public class Samp {
         final MessageBuilder builder = new MessageBuilder();
         builder.event();
         builder.withAction(message.action());
-        final List<String> copiedHeaders = Arrays.asList(Samp.CorrelationId, Samp.From, Samp.Trace);
 
         final String correlationId = message.headers().get(Samp.CorrelationId);
         final String from = message.headers().get(Samp.From);
         final String trace = message.headers().get(Samp.Trace);
-        final String payload = message.headers().get(Samp.Payload);
-        final String contentType = message.headers().get(Samp.ContentType);
-        final String date = message.headers().get(Samp.Date);
 
         if (correlationId != null) {
             builder.withHeader(Samp.CorrelationId, correlationId);
@@ -115,38 +111,42 @@ public class Samp {
         } else if (tracePath.isPresent()) {
             builder.withHeader(Samp.Trace, tracePath.get());
         }
-        if(payload != null) {
-          builder.withHeader(Samp.Payload, payload);
-        }
-        if(contentType != null) {
-          builder.withHeader(Samp.ContentType, contentType);
-        }
-        if(date != null) {
-          builder.withHeader(Samp.Date, date);
-        }
         return builder;
     }
 
-    /** @deprecated Please use message or response instead */
+    /** Format a SAMP message as bytes from the given message */
+    public static byte[] format(MessageI message) {
+        return format(message.kind(),
+                      message.status(),
+                      message.action(),
+                      message.headers(),
+                      message.body());
+    }
+
+    /** Format a SAMP message as bytes from the given parameters */
     public static byte[] format(String kind, Optional<String> status, String action, Map<String, String> headers, Optional<byte[]> body) {
-        final MessageBuilder builder = message();
-        if (kind == Samp.Failure && status.isPresent()) {
-            builder.failure(status.get());
-        } else if (kind == Samp.Failure) {
-            builder.failure();
-        } else if (kind == Samp.Event && status.isPresent()) {
-            builder.event(status.get());
-        } else {
-            builder.event();
+        // TODO should use byte buffer here instead of string builder...
+        final StringBuilder sb = new StringBuilder("SAMP/1.0 ");
+        sb.append(kind);
+        if (status.isPresent()) {
+            sb.append("/");
+            sb.append(status.get());
         }
-        builder.withAction(action);
-        headers.forEach( (k,v) -> builder.withHeader(k, v) );
+        sb.append(" ");
+        sb.append(action);
+        sb.append("\n");
+        new TreeMap(headers).forEach((k, v) -> {
+                sb.append(k);
+                sb.append(": ");
+                sb.append(v);
+                sb.append("\n");
+        });
+        sb.append("\n");
         if (body.isPresent()) {
-            builder.withBody(body.get());
-        } else {
-            builder.withEmptyBody();
+            sb.append(new String(body.get()));
         }
-        return builder.format();
+
+        return sb.toString().getBytes();
     }
 
     /** Correctly format tracePaths for the Trace header value */
