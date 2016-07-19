@@ -29,7 +29,6 @@ public class Samp {
     public static final String Date = "Date";
     public static final String From = "From";
     public static final String Trace = "Trace";
-    public static final String Payload = "Payload";
 
     private static final Pattern introPattern = Pattern.compile("SAMP\\/([0-9\\.]+)\\s+([a-zA-Z]+)((?:\\/[-\\w]+)?)\\s+(.*)");
     private static final Pattern headerPattern = Pattern.compile("([^:]+):\\s+(.*)");

@@ -61,10 +61,6 @@ public class Message implements MessageI {
 		this.kind = kind;
 	}
 
-	public String payload() {
-		return this.headers.get(Samp.Payload);
-	}
-
 	public String correlationId() {
 		return this.headers.get(Samp.CorrelationId);
 	}
