@@ -1,6 +1,8 @@
 package nz.co.fnzc.samp;
 
 import java.io.*;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.regex.*;
@@ -32,6 +34,8 @@ public class Samp {
 
     private static final Pattern introPattern = Pattern.compile("SAMP\\/([0-9\\.]+)\\s+([a-zA-Z]+)((?:\\/[-\\w]+)?)\\s+(.*)");
     private static final Pattern headerPattern = Pattern.compile("([^:]+):\\s+(.*)");
+
+    private static final DateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZZ");
 
     /** Parse a string to MessageI */
     public static MessageI parse(String message) throws IOException {
@@ -125,6 +129,7 @@ public class Samp {
     /** Format a SAMP message as bytes from the given parameters */
     public static byte[] format(String kind, Optional<String> status, String action, Map<String, String> headers, Optional<byte[]> body) {
         // TODO should use byte buffer here instead of string builder...
+        headers.putIfAbsent(Samp.Date, formatDate(new Date()));
         final StringBuilder sb = new StringBuilder("SAMP/1.0 ");
         sb.append(kind);
         if (status.isPresent()) {
@@ -134,7 +139,7 @@ public class Samp {
         sb.append(" ");
         sb.append(action);
         sb.append("\n");
-        new TreeMap(headers).forEach((k, v) -> {
+        new TreeMap<>(headers).forEach((k, v) -> {
                 sb.append(k);
                 sb.append(": ");
                 sb.append(v);
@@ -169,4 +174,13 @@ public class Samp {
         }
     }
 
+    /** Format Date to ISO 8601 string */
+    public static String formatDate(Date date) {
+        return dateFormatter.format(date);
+    }
+
+    /** Parse ISO 8601 to date */
+    public static Date parseDate(String dateString) throws java.text.ParseException {
+        return dateFormatter.parse(dateString);
+    }
 }

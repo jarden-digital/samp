@@ -4,7 +4,7 @@ apply plugin: 'maven'
 group = 'nz.co.fnzc'
 archivesBaseName = 'samp'
 sourceCompatibility = 1.8
-version = '1.3'
+version = '1.4'
 
 repositories {
   mavenCentral()
