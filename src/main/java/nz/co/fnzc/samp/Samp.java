@@ -32,126 +32,16 @@ public class Samp {
     public static final String From = "From";
     public static final String Trace = "Trace";
 
-    private static final Pattern introPattern = Pattern.compile("SAMP\\/([0-9\\.]+)\\s+([a-zA-Z]+)((?:\\/[-\\w]+)?)\\s+(.*)");
-    private static final Pattern headerPattern = Pattern.compile("([^:]+):\\s+(.*)");
-
     private static final DateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZZ");
+    private static final SampInstance defaultInstance = instance();
 
-    /** Parse a string to MessageI */
-    public static MessageI parse(String message) throws IOException {
-        return parse(new ByteArrayInputStream(message.getBytes()));
+    /** Factory method for the SAMP instance for a (sub)system. */
+    public static SampInstance instance() {
+        return new SampInstance();
     }
 
-    /** Parse a byte stream to MessageI */
-    public static MessageI parse(ByteArrayInputStream is) throws IOException {
-        final BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-
-        final String intro = reader.readLine();
-        final Matcher m = introPattern.matcher(intro);
-        if (!m.matches()) throw new IOException("Invalid SAMP Frame");
-        final String version = m.group(1);
-        final String kind = m.group(2);
-        final Optional<String> status = Optional.of(m.group(3)).filter(s -> s.length() > 1).map(s -> s.substring(1));
-        final String action = m.group(4);
-
-        Map<String, String> headers = new HashMap<>();
-        String header = reader.readLine();
-        while (header != null && header.length() > 0) {
-            final Matcher hm = headerPattern.matcher(header);
-            if (hm.matches()) {
-                headers.put(hm.group(1), hm.group(2));
-            }
-            header = reader.readLine();
-        }
-
-        String line = reader.readLine();
-        Optional<String> body = Optional.empty();
-        while (line != null) {
-            final String s = line + System.getProperty("line.separator");
-            if (body.isPresent()) {
-                body = body.map(b -> b + s);
-            } else {
-                body = Optional.of(s);
-            }
-            line = reader.readLine();
-        }
-
-        return new Message(version, kind, status, action, headers, body.map(s -> s.getBytes()));
-    }
-
-    /** Create a new MessageBuilder */
-    public static MessageBuilder message() {
-        return new MessageBuilder();
-    }
-
-    /** Create a new MessageBuilder, copying the action and relevant headers of the source message */
-    public static MessageBuilder response(MessageI message) {
-        return response(message, Optional.empty());
-    }
-
-    /** Create a new MessageBuilder, copying the action and relevant headers of the source message, and adding/appending the tracePath */
-    public static MessageBuilder response(MessageI message, String tracePath) {
-        return response(message, Optional.of(tracePath));
-    }
-
-    private static MessageBuilder response(MessageI message, Optional<String> tracePath) {
-        final MessageBuilder builder = new MessageBuilder();
-        builder.event();
-        builder.withAction(message.action());
-
-        final String correlationId = message.headers().get(Samp.CorrelationId);
-        final String from = message.headers().get(Samp.From);
-        final String trace = message.headers().get(Samp.Trace);
-
-        if (correlationId != null) {
-            builder.withHeader(Samp.CorrelationId, correlationId);
-        }
-        if (from != null) {
-            builder.withHeader(Samp.From, from);
-        }
-        if (trace != null) {
-            builder.withHeader(Samp.Trace, appendTracePath(trace, tracePath.orElse("?")));
-        } else if (tracePath.isPresent()) {
-            builder.withHeader(Samp.Trace, tracePath.get());
-        }
-        return builder;
-    }
-
-    /** Format a SAMP message as bytes from the given message */
-    public static byte[] format(MessageI message) {
-        return format(message.kind(),
-                      message.status(),
-                      message.action(),
-                      message.headers(),
-                      message.body());
-    }
-
-    /** Format a SAMP message as bytes from the given parameters */
-    public static byte[] format(String kind, Optional<String> status, String action, Map<String, String> headers, Optional<byte[]> body) {
-        // TODO should use byte buffer here instead of string builder...
-        Map<String, String> sortedHeaders = new TreeMap<>(headers);
-        sortedHeaders.putIfAbsent(Samp.Date, formatDate(new Date()));
-        final StringBuilder sb = new StringBuilder("SAMP/1.0 ");
-        sb.append(kind);
-        if (status.isPresent()) {
-            sb.append("/");
-            sb.append(status.get());
-        }
-        sb.append(" ");
-        sb.append(action);
-        sb.append("\n");
-        sortedHeaders.forEach((k, v) -> {
-                sb.append(k);
-                sb.append(": ");
-                sb.append(v);
-                sb.append("\n");
-        });
-        sb.append("\n");
-        if (body.isPresent()) {
-            sb.append(new String(body.get()));
-        }
-
-        return sb.toString().getBytes();
+    public static SampInstance defaultInstance() {
+        return defaultInstance;
     }
 
     /** Correctly format tracePaths for the Trace header value */

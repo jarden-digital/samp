@@ -5,11 +5,16 @@ import java.util.stream.Collectors;
 
 public class MessageBuilder {
 
+    private final SampInstance samp;
     private String kind = "EVENT";
     private Optional<String> status = Optional.empty();
     private String action = "";
     private Map<String, String> headers = new HashMap<>();
     private Optional<byte[]> body = Optional.empty();
+
+    public MessageBuilder(SampInstance samp) {
+        this.samp = samp;
+    }
 
     /** Set message kind to EVENT with no status */
     public MessageBuilder event() {
@@ -77,12 +82,12 @@ public class MessageBuilder {
 
     /** Format a SAMP message as bytes from this builder state */
     public byte[] format() {
-        return Samp.format(kind, status, action, headers, body);
+        return samp.format(kind, status, action, headers, body);
     }
 
     /** Generate a SAMP message from this builder state */
     public MessageI message() {
-        return new Message("1.0", kind, status, action, headers, body);
+        return new Message(samp.version, kind, status, action, headers, body);
     }
 
 }
