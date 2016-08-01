@@ -3,15 +3,14 @@ package nz.co.fnzc.samp;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class Message implements MessageI {
+public final class Message implements MessageI {
 
-    protected String version = "1.0";
-    protected String kind = "";
-    protected Optional<String> status = Optional.empty();
-    protected String action = "";
-    protected Map<String, String> headers = new HashMap<String, String>();
-    protected Optional<byte[]> body = Optional.empty();
-    public Message(){}
+    private final String version;
+    private final String kind;
+    private final Optional<String> status;
+    private final String action;
+    private final Map<String, String> headers;
+    private final Optional<byte[]> body;
     public Message(String version,
                    String kind,
                    Optional<String> status,
@@ -22,7 +21,7 @@ public class Message implements MessageI {
         this.kind = kind;
         this.status = status;
         this.action = action;
-        this.headers = headers;
+        this.headers = Collections.unmodifiableMap(headers);
         this.body = body;
     }
 
@@ -49,45 +48,29 @@ public class Message implements MessageI {
     public Optional<byte[]> body() {
         return this.body;
     }
-    public void setStatus(Optional<String> status) {
-		this.status = status;
-	}
 
-	public void setBody(Optional<byte[]> body) {
-		this.body = body;
-	}
-
-	public void setKind(String kind) {
-		this.kind = kind;
-	}
-
-	public String correlationId() {
-		return this.headers.get(Samp.CorrelationId);
-	}
-  @Override
+    @Override
 	public String toString() {
-    String correlationId = this.headers.get(Samp.CorrelationId);
-
-    final StringBuilder sb = new StringBuilder("SAMP/1.0 ");
-    sb.append(kind);
-    if (status.isPresent()) {
-        sb.append("/");
-        sb.append(status.get());
-    }
-    sb.append(" ");
-    sb.append(action);
-    sb.append("\n");
-    new TreeMap(headers).forEach((k, v) -> {
-            sb.append(k);
-            sb.append(": ");
-            sb.append(v);
-            sb.append("\n");
-    });
-    sb.append("\n");
-    if (body.isPresent()) {
-        sb.append(new String(body.get()));
-    }
-    return sb.toString();
+        final StringBuilder sb = new StringBuilder("SAMP/" + version);
+        sb.append(kind);
+        if (status.isPresent()) {
+            sb.append("/");
+            sb.append(status.get());
+        }
+        sb.append(" ");
+        sb.append(action);
+        sb.append("\n");
+        new TreeMap(headers).forEach((k, v) -> {
+                sb.append(k);
+                sb.append(": ");
+                sb.append(v);
+                sb.append("\n");
+        });
+        sb.append("\n");
+        if (body.isPresent()) {
+            sb.append(new String(body.get()));
+        }
+        return sb.toString();
 	}
 
 }
