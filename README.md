@@ -1,14 +1,14 @@
 # SAMP
 Simple Async Messaging Protocol
 
-## Prerequisites
+## Development
+
+### Prerequisites
 You will need [Gradle][1].
 
 [1]: http://gradle.org
 
-## Development
-
-## Testing
+### Testing
 Run tests
 
     gradle test
